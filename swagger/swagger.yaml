@@ -1,0 +1,304 @@
+consumes:
+- application/json
+definitions:
+  CreateTestPayload:
+    example:
+      createdAt: "2005-08-16T17:09:59Z"
+      sor: example
+      testId: example
+    properties:
+      createdAt:
+        example: "2005-08-16T17:09:59Z"
+        format: date-time
+        type: string
+      sor:
+        example: example
+        minLength: 1
+        type: string
+      testId:
+        example: example
+        minLength: 1
+        type: string
+    required:
+    - testId
+    - sor
+    title: CreateTestPayload
+    type: object
+  Test:
+    description: A test unit (default view)
+    example:
+      createdAt: "1997-10-02T11:39:59Z"
+      id: Non id consequatur quia aut sed.
+      sor: Repudiandae sit.
+    properties:
+      createdAt:
+        description: Test creation date/time
+        example: "1997-10-02T11:39:59Z"
+        format: date-time
+        type: string
+      id:
+        description: Unique id/number
+        example: Non id consequatur quia aut sed.
+        type: string
+      sor:
+        description: System of record. Usually who created the Test.
+        example: Repudiandae sit.
+        type: string
+    required:
+    - id
+    - sor
+    - createdAt
+    title: 'Mediatype identifier: application/vnd.test+json; view=default'
+    type: object
+  TestCollection:
+    description: TestCollection is the media type for an array of Test (default view)
+    example:
+    - createdAt: "1997-10-02T11:39:59Z"
+      id: Non id consequatur quia aut sed.
+      sor: Repudiandae sit.
+    - createdAt: "1997-10-02T11:39:59Z"
+      id: Non id consequatur quia aut sed.
+      sor: Repudiandae sit.
+    - createdAt: "1997-10-02T11:39:59Z"
+      id: Non id consequatur quia aut sed.
+      sor: Repudiandae sit.
+    items:
+      $ref: '#/definitions/Test'
+    title: 'Mediatype identifier: application/vnd.test+json; type=collection; view=default'
+    type: array
+  TestPayload:
+    example:
+      createdAt: "2005-08-16T17:09:59Z"
+      sor: example
+      testId: example
+    properties:
+      createdAt:
+        example: "2005-08-16T17:09:59Z"
+        format: date-time
+        type: string
+      sor:
+        example: example
+        minLength: 1
+        type: string
+      testId:
+        example: example
+        minLength: 1
+        type: string
+    title: TestPayload
+    type: object
+  error:
+    description: Error response media type (default view)
+    example:
+      code: invalid_value
+      detail: Value of ID must be an integer
+      id: 3F1FKVRR
+      meta:
+        timestamp: 1.458609066e+09
+      status: "400"
+    properties:
+      code:
+        description: an application-specific error code, expressed as a string value.
+        example: invalid_value
+        type: string
+      detail:
+        description: a human-readable explanation specific to this occurrence of the
+          problem.
+        example: Value of ID must be an integer
+        type: string
+      id:
+        description: a unique identifier for this particular occurrence of the problem.
+        example: 3F1FKVRR
+        type: string
+      meta:
+        additionalProperties: true
+        description: a meta object containing non-standard meta-information about
+          the error.
+        example:
+          timestamp: 1.458609066e+09
+        type: object
+      status:
+        description: the HTTP status code applicable to this problem, expressed as
+          a string value.
+        example: "400"
+        type: string
+    title: 'Mediatype identifier: application/vnd.goa.error; view=default'
+    type: object
+externalDocs:
+  description: readme
+  url: https://goa.test.com
+host: localhost:8080
+info:
+  contact:
+    email: goa@test.com
+    name: GOA TEst
+    url: https://goa.test.com
+  description: Goa test
+  title: GOA Test API
+  version: ""
+paths:
+  /_ah/health:
+    get:
+      description: Perform health check.
+      operationId: health#health
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: OK
+      schemes:
+      - http
+      summary: health health
+      tags:
+      - health
+  /swagger-ui/{filepath}:
+    get:
+      operationId: swagger#/swagger-ui/*filepath
+      parameters:
+      - description: Relative file path
+        in: path
+        name: filepath
+        required: true
+        type: string
+      responses:
+        "200":
+          description: File downloaded
+          schema:
+            type: file
+        "404":
+          description: File not found
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      summary: Download swagger-ui/
+  /swagger.json:
+    get:
+      operationId: swagger#/swagger.json
+      responses:
+        "200":
+          description: File downloaded
+          schema:
+            type: file
+      schemes:
+      - http
+      summary: Download swagger/swagger.json
+  /tests:
+    get:
+      description: Retrieve all tests.
+      operationId: test#list
+      produces:
+      - application/vnd.goa.error
+      - application/vnd.test+json; type=collection
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/TestCollection'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/error'
+        "404":
+          description: Not Found
+      schemes:
+      - http
+      summary: list test
+      tags:
+      - test
+    post:
+      description: Create new test
+      operationId: test#create
+      parameters:
+      - in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/CreateTestPayload'
+      produces:
+      - application/vnd.goa.error
+      - application/vnd.test+json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/Test'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      summary: create test
+      tags:
+      - test
+  /tests/{testId}:
+    get:
+      description: Get test by id
+      operationId: test#show
+      parameters:
+      - description: Test ID
+        in: path
+        name: testId
+        required: true
+        type: string
+      produces:
+      - application/vnd.goa.error
+      - application/vnd.test+json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Test'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/error'
+        "404":
+          description: Not Found
+      schemes:
+      - http
+      summary: show test
+      tags:
+      - test
+    patch:
+      operationId: test#update
+      parameters:
+      - in: path
+        name: testId
+        required: true
+        type: string
+      - in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/TestPayload'
+      produces:
+      - application/vnd.goa.error
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/error'
+        "404":
+          description: Not Found
+      schemes:
+      - http
+      summary: update test
+      tags:
+      - test
+produces:
+- application/json
+responses:
+  NoContent:
+    description: No Content
+  NotFound:
+    description: Not Found
+  OK:
+    description: OK
+    schema:
+      $ref: '#/definitions/Test'
+schemes:
+- http
+swagger: "2.0"

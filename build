@@ -1,0 +1,9 @@
+#!/bin/bash
+
+export GOPATH="$HOME/go"
+PATH="$GOPATH/bin:$PATH"
+
+echo generating files
+goagen bootstrap -d goa-api-test/design
+
+go build -o goa-test
